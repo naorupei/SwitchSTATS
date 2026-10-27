@@ -1,0 +1,209 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090b14">
+  <title>SwitchSTATS | Network Intelligence</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#">
+        <div class="brand-mark">S<span>.</span></div>
+        <div>
+          <div class="brand-name">Switch<span>STATS</span></div>
+          <div class="brand-caption">NETWORK INTELLIGENCE</div>
+        </div>
+      </a>
+
+      <div class="sidebar-label">WORKSPACE</div>
+      <nav class="navigation">
+        <button class="nav-item active" data-view="network"><span>◈</span> Network</button>
+        <button class="nav-item" data-view="analytics"><span>⌁</span> Analytics</button>
+        <button class="nav-item" data-view="prediction"><span>⌘</span> Prediction</button>
+        <button class="nav-item" data-view="validation"><span>∑</span> Validation</button>
+        <button class="nav-item" data-view="logs"><span>≡</span> Packet log</button>
+      </nav>
+
+      <div class="sidebar-label system-label">SYSTEM</div>
+      <button class="nav-item" data-view="settings"><span>⚙</span> Settings</button>
+
+      <div class="sidebar-bottom">
+        <div class="connection-indicator"><span id="connection-dot"></span> <span id="connection-text">Connecting...</span></div>
+        <div class="version">SWITCHSTATS / MVP 1.0</div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">NETWORK OPERATIONS / <span id="current-section">OVERVIEW</span></div>
+          <h1 id="page-title">Network overview</h1>
+        </div>
+        <div class="topbar-right">
+          <div class="live-pill"><span class="live-dot"></span> LIVE MONITORING</div>
+          <div class="clock" id="clock">--:--:--</div>
+        </div>
+      </header>
+
+      <section class="view active" id="view-network">
+        <div class="status-banner">
+          <div class="status-symbol">✳</div>
+          <div class="status-copy">
+            <strong id="network-status">Initialising network monitor</strong>
+            <span id="network-subtitle">Collecting probe results from your selected target.</span>
+          </div>
+          <div class="status-target"><span class="muted">TARGET</span><strong id="target-host">8.8.8.8</strong></div>
+        </div>
+
+        <div class="metric-grid">
+          <article class="metric-card">
+            <div class="metric-heading">PACKET LOSS <span class="metric-icon pink">↘</span></div>
+            <div class="metric-value" id="metric-loss">--<small>%</small></div>
+            <div class="metric-foot" id="metric-loss-foot">Awaiting samples</div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-heading">AVG. LATENCY <span class="metric-icon blue">⌁</span></div>
+            <div class="metric-value" id="metric-latency">--<small> ms</small></div>
+            <div class="metric-foot">Successful probes only</div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-heading">PROBES RECEIVED <span class="metric-icon violet">↗</span></div>
+            <div class="metric-value" id="metric-success">--<small> / --</small></div>
+            <div class="metric-foot" id="metric-probes-foot">Recent observation window</div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-heading">LOSS RISK <span class="metric-icon amber">⌁</span></div>
+            <div class="metric-value" id="metric-risk">--<small>%</small></div>
+            <div class="metric-foot">Probability of exceeding threshold</div>
+          </article>
+        </div>
+
+        <div class="section-heading">
+          <div><span class="section-kicker">TOPOLOGY</span><h2>Network map</h2></div>
+          <span class="subtle-tag">SELECT A NODE TO INSPECT</span>
+        </div>
+
+        <div class="topology-panel">
+          <div class="topology-grid"></div>
+          <div class="topology-lines">
+            <svg viewBox="0 0 900 260" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="linkGradient"><stop offset="0%" stop-color="#ed6cb8"/><stop offset="100%" stop-color="#8c7aff"/></linearGradient>
+              </defs>
+              <path class="link-base" d="M 155 130 L 450 130 L 745 130"/>
+              <path class="link-active" d="M 155 130 L 450 130 L 745 130"/>
+            </svg>
+          </div>
+          <div class="topology-node device-node" data-node="device" tabindex="0" role="button">
+            <div class="node-orbit"><div class="node-core">▣</div></div>
+            <strong>Your device</strong><span>LOCAL CLIENT</span><small id="device-state">Monitoring</small>
+          </div>
+          <div class="topology-node router-node" data-node="router" tabindex="0" role="button">
+            <div class="node-orbit"><div class="node-core">⌘</div></div>
+            <strong>Network path</strong><span>ICMP PROBES</span><small id="router-state">Active</small>
+          </div>
+          <div class="topology-node server-node" data-node="server" tabindex="0" role="button">
+            <div class="node-orbit"><div class="node-core">▤</div></div>
+            <strong>Target server</strong><span id="server-label">8.8.8.8</span><small id="server-state">Awaiting data</small>
+          </div>
+          <div class="topology-footer"><span>● MEASURED CONNECTION</span><span id="topology-sample">0 OBSERVATIONS</span></div>
+        </div>
+
+        <div class="lower-grid">
+          <article class="panel">
+            <div class="panel-heading"><div><span class="section-kicker">PACKET OUTCOMES</span><h2>Packet loss per probe</h2></div><span class="chart-unit">LOST / RECEIVED</span></div>
+            <div class="chart-wrap"><canvas id="latency-chart"></canvas></div>
+          </article>
+          <article class="panel">
+            <div class="panel-heading"><div><span class="section-kicker">PROBE OUTCOMES</span><h2>Delivery ratio</h2></div></div>
+            <div class="chart-wrap doughnut-wrap"><canvas id="delivery-chart"></canvas><div class="doughnut-center"><strong id="delivery-percent">--%</strong><span>SUCCESS</span></div></div>
+            <div class="legend-row"><span><i class="legend-success"></i> Received</span><span><i class="legend-loss"></i> Lost</span></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="view" id="view-analytics">
+        <div class="section-heading"><div><span class="section-kicker">OBSERVATIONS</span><h2>Network analytics</h2></div></div>
+        <div class="metric-grid">
+          <article class="metric-card"><div class="metric-heading">TOTAL PROBES</div><div class="metric-value" id="analytics-total">0</div><div class="metric-foot">Current observation window</div></article>
+          <article class="metric-card"><div class="metric-heading">SUCCESSFUL</div><div class="metric-value" id="analytics-success">0</div><div class="metric-foot">Reply received</div></article>
+          <article class="metric-card"><div class="metric-heading">LOST</div><div class="metric-value" id="analytics-loss">0</div><div class="metric-foot">No reply received</div></article>
+          <article class="metric-card"><div class="metric-heading">MEAN LATENCY</div><div class="metric-value" id="analytics-latency">--</div><div class="metric-foot">Milliseconds</div></article>
+        </div>
+        <article class="panel"><div class="panel-heading"><div><span class="section-kicker">TIME SERIES</span><h2>Probe latency history</h2></div></div><div class="chart-wrap large-chart"><canvas id="analytics-chart"></canvas></div></article>
+      </section>
+
+      <section class="view" id="view-prediction">
+        <div class="section-heading"><div><span class="section-kicker">PROBABILISTIC MODEL</span><h2>Packet-loss prediction</h2></div></div>
+        <div class="metric-grid two-metrics">
+          <article class="metric-card"><div class="metric-heading">ESTIMATED LOSS PROBABILITY</div><div class="metric-value" id="prediction-rate">--%</div><div class="metric-foot">Estimated from recent probes</div></article>
+          <article class="metric-card"><div class="metric-heading">EXPECTED FUTURE LOSSES</div><div class="metric-value" id="prediction-count">--</div><div class="metric-foot" id="prediction-window">Future probe window</div></article>
+        </div>
+        <article class="panel explanation-panel">
+          <span class="section-kicker">BINOMIAL DISTRIBUTION</span>
+          <h2>Model interpretation</h2>
+          <p id="prediction-interpretation">Waiting for sufficient probe observations.</p>
+          <div class="formula">X ~ Binomial(n, p)</div>
+          <p class="muted-text">n is the number of future probes and p is the estimated probability that one probe is lost. This model assumes independent trials with a constant loss probability.</p>
+          <div class="probability-track"><div id="risk-bar"></div></div>
+          <div class="track-labels"><span>LOWER RISK</span><strong id="risk-label">AWAITING DATA</strong><span>HIGHER RISK</span></div>
+        </article>
+      </section>
+
+      <section class="view" id="view-validation">
+        <div class="section-heading"><div><span class="section-kicker">CO5 / STATISTICAL TESTING</span><h2>Model validation</h2></div></div>
+        <article class="panel validation-panel">
+          <div class="validation-status" id="validation-status">COLLECTING SAMPLES</div>
+          <h2 id="validation-heading">Exact binomial test</h2>
+          <p id="validation-interpretation">At least five observations are required to run the test.</p>
+          <div class="validation-grid">
+            <div><span>OBSERVATIONS</span><strong id="validation-n">0</strong></div>
+            <div><span>OBSERVED LOSS RATE</span><strong id="validation-rate">--%</strong></div>
+            <div><span>P-VALUE</span><strong id="validation-p">--</strong></div>
+            <div><span>SIGNIFICANCE LEVEL</span><strong>0.05</strong></div>
+          </div>
+          <div class="hypothesis"><strong>H₀</strong><span id="null-hypothesis">Loss probability is at or below the warning threshold.</span></div>
+          <div class="hypothesis"><strong>H₁</strong><span id="alternative-hypothesis">Loss probability exceeds the warning threshold.</span></div>
+          <p class="muted-text" id="validation-caveat">Statistical results depend on the independence assumption.</p>
+        </article>
+      </section>
+
+      <section class="view" id="view-logs">
+        <div class="section-heading"><div><span class="section-kicker">RAW OBSERVATIONS</span><h2>Probe log</h2></div><span class="subtle-tag">LATEST FIRST</span></div>
+        <article class="panel table-panel">
+          <div class="table-scroll"><table><thead><tr><th>TIME</th><th>TARGET</th><th>RESULT</th><th>LATENCY</th><th>DETAIL</th></tr></thead><tbody id="log-body"><tr><td colspan="5">Waiting for probe records...</td></tr></tbody></table></div>
+        </article>
+      </section>
+
+      <section class="view" id="view-settings">
+        <div class="section-heading"><div><span class="section-kicker">CONFIGURATION</span><h2>Monitor settings</h2></div></div>
+        <article class="panel settings-panel">
+          <div class="setting-row"><div><strong>Monitored target</strong><p>The hostname or IP address probed by the backend.</p></div><code id="settings-target">8.8.8.8</code></div>
+          <div class="setting-row"><div><strong>Probe interval</strong><p>Time between probe attempts.</p></div><code id="settings-interval">2 seconds</code></div>
+          <div class="setting-row"><div><strong>Observation window</strong><p>Recent probe results used for calculations.</p></div><code id="settings-window">30 probes</code></div>
+          <div class="setting-row"><div><strong>Loss warning threshold</strong><p>Reference value for prediction and statistical testing.</p></div><code id="settings-threshold">10%</code></div>
+          <p class="muted-text">These values are loaded from the backend environment configuration. Edit backend/.env and restart the server to change them.</p>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <div class="drawer-backdrop" id="drawer-backdrop"></div>
+  <aside class="node-drawer" id="node-drawer" aria-hidden="true">
+    <button class="drawer-close" id="drawer-close" aria-label="Close details">×</button>
+    <span class="section-kicker">NODE INTELLIGENCE</span>
+    <h2 id="drawer-title">Node details</h2>
+    <p id="drawer-description">Network node information.</p>
+    <div class="drawer-stat"><span>STATUS</span><strong id="drawer-status">--</strong></div>
+    <div class="drawer-stat"><span>DETAIL</span><strong id="drawer-detail">--</strong></div>
+    <div class="drawer-stat"><span>ROLE</span><strong id="drawer-role">--</strong></div>
+  </aside>
+
+  <script src="app.js"></script>
+</body>
+</html>
